@@ -17,7 +17,6 @@ import shutil
 import toml
 import threading
 import queue
-import time
 
 # Queue for main thread tasks
 task_queue = queue.Queue()
@@ -164,23 +163,8 @@ def check_if_model_exist(
     elif save_model_as in ["ckpt", "safetensors"]:
         ckpt_file = os.path.join(output_dir, output_name + "." + save_model_as)
         if os.path.isfile(ckpt_file):
-            
-                    # Check if running on macOS (darwin)
-            if sys.platform == "darwin":
-                # Get the current time in epoch seconds
-                current_time = int(time.time())
-                
-                # Construct the backup file name with .BAK-<time_in_epoch_seconds>
-                backup_file = ckpt_file + f".BAK-{current_time}"
-                
-                # Rename the file to the backup file
-                shutil.move(ckpt_file, backup_file)
-                
-                log.info(f"Renamed existing model file to {backup_file}")
-                return False  # Returning False because we're continuing, not aborting the process
-            else:
-              msg = f"A model with the same file name {ckpt_file} already exists. Do you want to overwrite it?"
-              if not ynbox(msg, "Overwrite Existing Model?"):
+            msg = f"A model with the same file name {ckpt_file} already exists. Do you want to overwrite it?"
+            if not ynbox(msg, "Overwrite Existing Model?"):
                 log.info("Aborting training due to existing model with same name...")
                 return True
     else:
